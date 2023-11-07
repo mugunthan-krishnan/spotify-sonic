@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Landing Page{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="h3">Welcome, {{current_user.username}}</div>
+    <h4 class="text-center">Top 50 artists for the month</h4>
+    <div style = "height: 330px;display: block; overflow: auto;">
+        <table class="table">
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in args[0] %}
+                    <th>{{r}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in args %}
+            <tr>
+                {% for v in r.values() %}
+                <td>{{v}}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

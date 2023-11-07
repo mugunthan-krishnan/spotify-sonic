@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block title %}Favourite Tracks{% endblock %}
+{% block content %}
+{% from "sort_filter.html" import sort_filter %}
+
+<div class="container-fluid">
+    <div class="h2 text-center">Favourite Tracks</div>
+    <form method="GET">
+        <div class="row">            
+            <div class="col">
+                <label class="visually-hidden" for="name">Track Name</label>
+                <input type="text" name="track_name" class="form-control" id="track_name" placeholder="Track name" value="{{request.args.get('track_name') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="name">Artist Name</label>
+                <input type="text" name="artist_name" class="form-control" id="artist_name" placeholder="Artist Name" value="{{request.args.get('artist_name') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="name">Album Name</label>
+                <input type="text" name="album_name" class="form-control" id="album_name" placeholder="Album Name" value="{{request.args.get('album_name') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="name">Record Type</label>
+                <select class="form-select" id="col" name="rtype">
+                    <option value="">Record Type</option>
+                    {% for v,l in rtypecols %}
+                    <option {{'selected' if v==request.args.get('rtype', '' )}} value="{{v}}">{{l}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {{sort_filter(cols=allowed_columns)}}
+            <div class="col">
+                <label class="visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" id="limit" name="limit"
+                    value="{{request.args.get('limit') or '10'}}" />
+            </div>
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Filter" />
+            </div>
+            <div class="col">
+                <a href="?" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive" style="height:67vh; overflow: auto;">
+        <table class="table">
+            {% if rows and rows|length > 0 %}
+            <br>
+            <div style="float: left;"><p>Total Number of Favorite Tracks: <b>{{count}}</b></p></div>
+            <div style="float:right;">
+                <form method="POST" action="{{url_for('favourites.deletefavourites', type=type, **request.args)}}">
+                <input type="submit" class="btn btn-danger btn-sm" name="clearall" value="Clear All Favourites"/>
+                </form>
+            </div>
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in rows[0] %}
+                        {% if r != "albumurl" and r != "id" %}
+                        <th>{{r.replace("_", " ")}}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    {% for v in r.keys() %}
+                    {% if v != "albumurl" and v != "id" %}
+                    <td>{% if v == "Album_Name" %}
+                    {% if r["albumurl"] != None %}
+                        <a href = "{{r['albumurl']}}">{{r[v]}}</a>
+                    {% endif %}
+                    {% else %}
+                    {{r[v]}}
+                    {% endif %}
+                    </td>
+                    {% endif %}
+                    {% endfor %}
+                    <td><a href="{{url_for('tracks.view', id=r.get('id'), type=type)}}" class="btn btn-secondary btn-sm">View</a>
+                        <a href="{{url_for('tracks.edit', id=r.get('id'), type=type)}}" class="btn btn-secondary btn-sm">Edit</a>
+                        <a href="{{url_for('tracks.delete', id=r.get('id'), **request.args)}}"
+                            class="btn btn-danger btn-sm">x</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

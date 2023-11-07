@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %}Permissions Report{% endblock %}
+{% block content %}
+{% from "sort_filter.html" import sort_filter %}
+
+<div class="container-fluid">
+    <div class="h2 text-center">Permissions Report</div>
+    <form method="GET">
+        <div class="row">
+            <div class="col">
+                <select class="form-select" id="entity" name="entity">
+                    <option value="">Entity</option>
+                    {% for ev in entityrows %}                                
+                    <option {{'selected' if ev==request.args.get('entity', '' )}} value="{{ev['entity_id']}}">{{ev['name']}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="caption">Number of users</label>
+                <input type="text" name="caption" class="form-control" id="caption" value="No. of users" readonly/>
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="operation">Operation</label>
+                <select class="form-select" id="operation" name="operation">
+                    <option value=""></option>
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value="<"><</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="no_of_users">Number of users value</label>
+                <input type="text" name="no_users" class="form-control" id="no_users" placeholder="Number of users" />
+            </div>
+            {{sort_filter(cols=allowed_columns)}}
+            <div class="col">
+                <label class="visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" id="limit" name="limit"
+                    value="{{request.args.get('limit') or '10'}}" />
+            </div>
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Filter" />
+            </div>
+            <div class="col">
+                <a href="?" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive" style="height:67vh; overflow: auto;">
+        <table class="table">
+            {% if rows and rows|length > 0 %}
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in rows[0] %}
+                    {% if r not in ("userid","entity_id")%}
+                    <th>{{r.replace("_", " ")}}</th>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    {% for v in r.keys() %}
+                    {% if v not in ("userid","entity_id")%}
+                    <td>{{r[v]}}</td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

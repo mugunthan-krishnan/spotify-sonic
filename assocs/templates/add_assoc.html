@@ -1,0 +1,43 @@
+{% extends "landing_page.html" %}
+{% block title %}Add Permissions{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="h2 text-center">Add permissions to users</div>
+    <div class="table-responsive" style="height:73.5vh;overflow: auto;">
+        <table class="table">
+            {% if userrows and userrows|length > 0 %}
+                <thead>
+                    <tr class="text-capitalize">
+                    {% for r in userrows[0] %}
+                        <th>{{r.replace("_", " ")}}</th>
+                    {% endfor %}
+                    <th>Association Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in userrows %}
+                    <form method="POST" action="{{url_for('adminassoc.addassoc', userid=r.get('id'))}}">
+                    <tr>
+                    {% for v in r.values() %}
+                    <td>{{v}}</td>
+                    {% endfor %}
+                    <td>
+                        <select class="form-select" id="entity" name="entity">
+                            <option value="">Entity</option>
+                            {% for ev in entityrows %}                                
+                            <option {{'selected' if ev==request.args.get('entity', '' )}} value="{{ev['entity_id']}}">{{ev['name']}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="submit" class="btn btn-secondary btn-sm" value="Add" />
+                    </tr>
+                    </form>
+                    {% endfor %}
+                </tbody>
+            {% else %}
+                <tbody><tr><td colspan="100%">No users available in the system</td></tr></tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

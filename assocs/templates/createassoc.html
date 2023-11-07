@@ -1,0 +1,17 @@
+{% extends "landing_page.html" %}
+{% block title %}Create Permissions{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h2>Create permissions</h2>
+    <p>To create more than one permissions, enter values as comma separated.</p>
+    <form method="POST">
+        <div class="form-label">
+            <label class="form-label" for="assoc">Permission entities</label>
+            <input class="form-control" id="assoc" name="assoc" placeholder="Enter association entities"/>
+        </div>
+        <div class="form-label">
+            <input type="submit" class="btn btn-primary" value="Create" />
+        </div>
+    </form>
+</div>
+{% endblock %}

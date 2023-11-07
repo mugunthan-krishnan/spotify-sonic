@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block title %}Request New Feature{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="h2 text-center">Request New Feature</div>
+    <form method="POST">
+        <div class="form-label">
+            <textarea name="feature" style="height: 200px; width:500px;" placeholder="Enter details..." required></textarea>
+        </div>
+        <div class="form-label">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+{% block title %}Favourite Tracks Summary{% endblock %}
+{% block content %}
+{% from "sort_filter.html" import sort_filter %}
+
+<div class="container-fluid">
+    <div class="h2 text-center">Favourite Tracks Summary</div>
+    <form method="GET">
+        <div class="row">            
+            <div class="col">
+                <label class="visually-hidden" for="track_name">Track Name</label>
+                <input type="text" name="track_name" class="form-control" id="track_name" placeholder="Track Name"
+                                                value="{{request.args.get('track_name') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="artist_name">Artist Name</label>
+                <input type="text" name="artist_name" class="form-control" id="artist_name" placeholder="Artist Name"
+                                                value="{{request.args.get('artist_name') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="caption">Number of users</label>
+                <input type="text" name="caption" class="form-control" id="caption" value="No. of users" readonly/>
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="operation">Operation</label>
+                <select class="form-select" id="operation" name="operation">
+                    <option value=""></option>
+                    <option value="=">=</option>
+                    <option value=">">></option>
+                    <option value="<"><</option>
+                </select>
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="no_of_users">Number of users value</label>
+                <input type="text" name="no_users" class="form-control" id="no_users" placeholder="Number of users" />
+            </div>
+            {{sort_filter(cols=allowed_columns)}}
+            <div class="col">
+                <label class="visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" id="limit" name="limit"
+                    value="{{request.args.get('limit') or '10'}}" />
+            </div>
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Filter" />
+            </div>
+            <div class="col">
+                <a href="?" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive" style="height:67vh; overflow: auto;">
+        <table class="table">
+            {% if rows and rows|length > 0 %}
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in rows[0] %}
+                    <th>{{r.replace("_", " ")}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    {% for v in r.keys() %}
+                    <td>{{r[v]}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

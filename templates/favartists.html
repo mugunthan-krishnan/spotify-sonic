@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block title %}Favourite Artists{% endblock %}
+{% block content %}
+{% from "sort_filter.html" import sort_filter %}
+
+<div class="container-fluid">
+    <div class="h2 text-center">Favourite Artists</div>
+    <form method="GET">
+        <div class="row">            
+            <div class="col">
+                <label class="visually-hidden" for="name">Artist Name</label>
+                <input type="text" name="artist_name" class="form-control" id="artist_name" placeholder="Artist name" value="{{request.args.get('artist_name') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="name">Genre</label>
+                <input type="text" name="genre" class="form-control" id="genre" placeholder="Genre" value="{{request.args.get('genre') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="rtype">Record Type</label>
+                <select class="form-select" id="rtype" name="rtype">
+                    <option value="">Record Type</option>
+                    {% for v,l in rtypecols %}
+                    <option {{'selected' if v==request.args.get('rtype', '' )}} value="{{v}}">{{l}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {{sort_filter(cols=allowed_columns)}}
+            <div class="col">
+                <label class="visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" id="limit" name="limit"
+                    value="{{request.args.get('limit') or '10'}}" />
+            </div>
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Filter" />
+            </div>
+            <div class="col">
+                <a href="?" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive" style="height:67vh; overflow: auto;">
+        <table class="table">
+            {% if rows and rows|length > 0 %}
+            <br>
+            <div style="float: left;"><p>Total Number of Favorite Artists: <b>{{count}}</b></p></div>
+            <div style="float:right;">
+                <form method="POST" action="{{url_for('favourites.deletefavourites', type=type, **request.args)}}">
+                <input type="submit" class="btn btn-danger btn-sm" name="clearall" value="Clear All Favourites"/>
+                </form>
+            </div>
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in rows[0] %}
+                    {% if r != "id" %}
+                        <th>{{r.replace("_", " ")}}</th>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    {% for v in r.keys() %}
+                    {% if v != "id" %}
+                    <td>{% if v == "Spotify_Profile" %}
+                        {% if r[v]%}
+                        <a href = "{{r[v]}}">Spotify Profile</a>
+                        {% elif r[v] == None %}
+                        <p>No Profile-Custom Artist</p>
+                        {% endif %}
+                    {% elif v == "image"%}
+                    {% if r[v] == None %}
+                    <p>No Image</p>
+                    {% else %}
+                    <img src = "{{r[v]}}" style="border: 1px solid #ddd; border-radius: 4px; padding: 5px; width: 70px;"/>
+                    {% endif %}
+                    {% else %}
+                    {{r[v]}}
+                    {% endif %}
+                    </td>
+                    {% endif %}
+                    {% endfor %}
+                    <td><a href="{{url_for('artist.view', id=r.get('id'), type=type)}}" class="btn btn-secondary btn-sm">View</a>
+                        <a href="{{url_for('artist.edit',id=r.get('id'), type=type)}}" class="btn btn-secondary btn-sm">Edit</a>
+                        <a href="{{url_for('artist.delete', id=r.get('id'), **request.args)}}"
+                            class="btn btn-danger btn-sm">x</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

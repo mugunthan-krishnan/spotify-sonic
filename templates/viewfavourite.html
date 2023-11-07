@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}
+{% if type == "artists" %}
+View Artist
+{% else %}
+View Track
+{% endif %}
+{% endblock %}
+{% block content %}
+{% from "_formhelpers.html" import render_field %}
+<div class="container-fluid">
+    <div class="h3">
+        {% if type == "artists" %}
+            View Artist
+        {% else %}
+            View Track
+        {% endif %}
+    </div>
+    <form method="POST">
+        <div class="form-group mb-3">
+            {% if type == "artists" %}
+            <div class="form-label">
+                <label class="form-label" for="artist_name">Artist Name</label>
+                <input class="form-control" id="artist_name" name="artist_name" value="{{row.name}}" readonly/>
+            </div>
+            <div class="form-label">
+                <label class="form-label" for="genre">Genre</label>
+                <input class="form-control" id="genre" name="genre" value="{{row.genre}}" readonly/>
+            </div>
+            <div class="form-label">
+                <label class="form-label" for="spotifyurl">Spotify URL</label>
+                <input class="form-control" id="spotifyurl" name="spotifyurl" value="{{row.spotifyUrl}}" readonly/>
+            </div>
+            <div class="form-label">
+                <label class="form-label" for="imageurl">Image URL</label>
+                <input class="form-control" id="imageurl" name="imageurl" value="{{row.imageUrl}}" readonly/>
+            </div>
+            {% else %}
+            <div class="form-label">
+                <label class="form-label" for="name">Track Name</label>
+                <input class="form-control" id="name" name="name" value="{{row.name}}" readonly/>
+            </div>
+            <div class="form-label">
+                <label class="form-label" for="artist_name">Artist Name</label>
+                <input class="form-control" id="artist_name" name="artist_name" value="{{row.artistname}}" readonly/>
+            </div>
+            <div class="form-label">
+                <label class="form-label" for="album_name">Album Name</label>
+                <input class="form-control" id="album_name" name="album_name" value="{{row.albumname}}" readonly/>
+            </div>
+            <div class="form-label">
+                <label class="form-label" for="album_url">Album URL</label>
+                <input class="form-control" id="album_url" name="album_url" value="{{row.album_url}}" readonly/>
+            </div>
+            <div class="form-label">
+                <label class="form-label" for="duration">Duration</label>
+                <input class="form-control" id="duration" name="duration" value="{{row.duration}}" readonly/>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

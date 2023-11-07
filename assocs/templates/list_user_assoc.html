@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block title %}User Permissions{% endblock %}
+{% block content %}
+{% from "sort_filter.html" import sort_filter %}
+
+<div class="container-fluid">
+    <div class="h2 text-center">User Permissions</div>
+    <form method="GET">
+        <div class="row">            
+            <div class="col">
+                <label class="visually-hidden" for="name">Permission</label>
+                <input type="text" name="association" class="form-control" id="association" placeholder="Permission Name"
+                                                value="{{request.args.get('association') or ''}}">
+            </div>
+            <div class="col">
+                <label class="visually-hidden" for="name">Description</label>
+                <input type="text" name="description" class="form-control" id="description" placeholder="Description"
+                                                value="{{request.args.get('description') or ''}}">
+            </div>
+            {{sort_filter(cols=allowed_columns)}}
+            <div class="col">
+                <label class="visually-hidden" for="limit">Limit</label>
+                <input class="form-control" type="number" id="limit" name="limit"
+                    value="{{request.args.get('limit') or '10'}}" />
+            </div>
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Filter" />
+            </div>
+            <div class="col">
+                <a href="?" class="btn btn-secondary">Reset</a>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive" style="height:67vh; overflow: auto;">
+        {% if rows %}
+        <br>
+            <div style="float: left;"><p>Total Number of Permissions: <b>{{count}}</b></p></div>
+            <div style="float:right;">
+                <form method="POST" action="{{url_for('userassoc.deleteassociation', **request.args)}}">
+                <input type="submit" class="btn btn-danger btn-sm" name="clearinactive" value="Clear Inactive Permissions"/>
+                <input type="submit" class="btn btn-danger btn-sm" name="clearactive" value="Clear Active Permissions"/>
+                <input type="submit" class="btn btn-danger btn-sm" name="clearall" value="Clear All Permissions"/>
+                </form>
+            </div>
+        {% endif %}
+        <table class="table">
+            {% if rows and rows|length > 0 %}
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in rows[0] %}
+                    {% if r != "id" and r != "is_active" %}
+                    <th>{{r.replace("_", " ")}}</th>
+                    {% endif %}
+                    {% if r == "is_active" %}
+                    <th>{{"Active?"}}</th>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rows %}
+                <tr>
+                    {% for v in r.keys() %}
+                    {% if v != "id" and v != "is_active"%}
+                    <td>{{r[v]}}</td>
+                    {% elif v == "is_active" %}
+                    <td>{{"Yes" if r[v] == 1 else "No" }}</td>
+                    {% endif %}
+                    {% endfor %}
+                    <td>
+                        <form method="POST" action="{{url_for('userassoc.deleteassociation', id=r.get('id'), **request.args)}}">
+                        <input type="submit" class="btn btn-danger btn-sm" name="makeinactive" value="Make inactive"/>
+                        </form>
+                    </td>
+                    <td><a href="{{url_for('userassoc.deleteassociation', id=r.get('id'), **request.args)}}"
+                            class="btn btn-danger btn-sm">X</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

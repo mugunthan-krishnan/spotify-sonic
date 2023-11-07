@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %}Requested Features{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="h2 text-center">Requested Features</div>
+    {% if rows %}
+    <table class="table">
+        <thead>
+            <tr class="text-capitalize">
+                {% for r in rows[0] %}
+                <th>{{r.replace("_", " ")}}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in rows %}
+                {% for v in r.values() %}
+                <td>{{v}}</td>
+                {% endfor %}
+            {% endfor %}
+            <tr>
+    {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No features requested</td>
+                </tr>
+            </tbody>
+    {% endif %}
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "landing_page.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div style="width:70%; float:left;">
+        <h3>Search</h3>
+        <form method="POST" class="row row-cols-lg-auto g-10 align-items-center">
+            <div class="col-6">
+                <input class="form-control" id="search" name="search" value="{{ request.args.get('search') or ''}}" placeholder="Search for artists, tracks,..."/>
+            </div>
+            <div class="col">
+                <input type="checkbox" class="checkbox" id="artists" name="artists" value="artists" />
+                <label class="checkbox-inline" for="artists">Artists</label>
+            </div>
+            <div class="col">
+                <input type="checkbox" class="checkbox" id="tracks" name="tracks" value="tracks" />
+                <label class="checkbox-inline" for="tracks">Tracks</label>
+            </div>
+            <div class="col">
+                <input type="submit" class="btn btn-primary" value="Search" />
+            </div>
+            {% if current_user.has_role("Admin") %}
+            <div class="col">
+                <label class="visually-hidden" for="userdropdown">Users</label>
+                
+            </div>
+            {% endif %}
+        </form>
+        <div style = "height: 415px; display:block; overflow: auto;">
+        <table class="table">
+            {% if args %}
+            {% if type == "artists" %}
+            <th></th>
+            <th>Artist Name</th>
+            <th>Profile Link</th>
+            {% else %}
+            <th>Track</th>
+            <th>Album</th>
+            <th>Artist</th>
+            <th>Duration</th>
+            {% endif%}
+            {% for r in args %}
+            <tr>
+                {% for v in r.keys() %}
+                {% if type == "artists" %}
+                {% if v == "artistName" %}
+                <td>{{r[v]}}</td>
+                {% elif v == "image" %}
+                <td>
+                    <img src="{{r[v]}}" name="image" style="border: 1px solid #ddd; border-radius: 4px; padding: 5px; width: 70px;">
+                </td>
+                {% else %}
+                <td><a href="{{r[v]}}" name="profile">Spotify Profile</a></td>
+                {% endif %}
+                {% else %}
+                {% if v == "spotifyUrl" %}
+                <td style="width:25%"><a href="{{r[v]}}" name="trackName">{{r["trackName"]}}</a></td>
+                {% elif v == "albumUrl"%}
+                {% if r["shortenedAlbumName"] != None %}
+                <td style="width:25%"><a href="{{r[v]}}">{{r["shortenedAlbumName"]}}</a></td>
+                {% else %}
+                <td style="width:25%"><a href="{{r[v]}}">{{r["albumName"]}}</a></td>
+                {% endif %}
+                
+                {% elif v == "artistUrl" %}
+                <td style="width:25%"><a href="{{r[v]}}">{{r["artistName"]}}</a></td>
+                {% elif v == "duration" %}
+                <td>{{r[v]}}</td>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                <td>
+                    {% if type == "artists" %}
+                    {% set addaction =  url_for('addviewfav.add', url=r.get('spotifyUrl'), name=r.get('artistName'), img=r.get('image'), type=type) %}
+                    {% set addtouseraction =  url_for('addviewfav.add', url=r.get('spotifyUrl'), name=r.get('artistName'), img=r.get('image'), type=type
+                                                        , userdropdown=userdropdown) %}
+                    {% else %}
+                    {% set addaction =  url_for('addviewfav.add', spotifyId=r.get('spotifyId'), trackName=r.get('trackName'), artistName=r.get('artistName')
+                        , albumUrl=r.get('albumUrl'), albumName=r.get('albumName'),duration=r.get('duration'), type=type) %}
+                    {% set addtouseraction =  url_for('addviewfav.add', spotifyId=r.get('spotifyId'), trackName=r.get('trackName'), artistName=r.get('artistName')
+                        , albumUrl=r.get('albumUrl'), albumName=r.get('albumName'),duration=r.get('duration'), type=type, userdropdown=userdropdown) %}
+                    {% endif %}
+                    {% if current_user.has_role("Admin") %}
+                    <div style="float:left;">
+                        <form method="POST" action="{{ addtouseraction }}" style="width: 50%;">
+                            <div style="width:80%;float:left;">
+                            <select class="form-select" id="userdropdown" name="userdropdown">
+                                <option value="0" selected>Select user</option>
+                                {% for u in users %}
+                                <option value="{{u['id']}}">{{u['username']}}</option>
+                                {% endfor %}
+                            </select>
+                            </div>
+                            <div style="width: 5%;float:right;">
+                            <input type="submit" class="btn btn-secondary btn-sm" name="addtouser" value="Add to user"/>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                    <div style="float:right">
+                        <form method="POST" action="{{ addaction }}" style="width: 50%;">
+                            <input type="submit" class="btn btn-secondary btn-sm" name="add" value="Add"/>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <p>No results to show</p>
+            {% endif %}
+        </table>
+        </div>
+    </div>
+    <div style="width:30%; float: right;">
+        <h3>Add to your library</h3>
+        <div class="card">
+            <div class="container responsive-tabs" style="height:440px;">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a id="tab-A" href="#pane-A" class="nav-link active" data-bs-toggle="tab" role="tab">Artists</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="tab-B" href="#pane-B" class="nav-link" data-bs-toggle="tab" role="tab">Tracks</a>
+                    </li>
+                </ul>
+                <div id="content" class="tab-content" role="tablist">
+                    <div id="pane-A" class="card tab-pane fade show active" role="tabpanel" aria-labelledby="tab-A">
+                            <div class="card-body">
+                                <form method="POST" class="form-group mb-3" action="{{url_for('addviewfav.addcustomartist')}}">
+                                    <div class="form-label">
+                                        <input class="form-control" id="artist_name" name="artist_name" value="{{ request.args.get('artist_name') or ''}}" placeholder="Artist Name"/>
+                                    </div>
+                                    <div class="form-label">
+                                        <input class="form-control" id="genre" name="genre" value="{{ request.args.get('genre') or ''}}" placeholder="Genre"/>
+                                    </div>
+                                    <div class="form-label">
+                                        <input type="submit" class="btn btn-primary" value="Add Artist" />
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
+                        <div class="card-body">
+                            <form method="POST" class="form-group mb-3" action="{{url_for('addviewfav.addcustomtrack')}}">
+                                <div class="form-label">
+                                    <input class="form-control" id="track_name" name="track_name" value="{{ request.args.get('track_name') or ''}}" placeholder="Track Name"/>
+                                </div>
+                                <div class="form-label">
+                                    <input class="form-control" id="playtime" name="duration" value="{{ request.args.get('duration') or ''}}" placeholder="Duration"/>
+                                </div>
+                                <div class="form-label">
+                                    <input class="form-control" id="album_name" name="album_name" value="{{ request.args.get('album_name') or ''}}" placeholder="Album Name"/>
+                                </div>
+                                <div class="form-label">
+                                    <input class="form-control" id="artist_name" name="artist_name" value="{{ request.args.get('artist_name') or ''}}" placeholder="Artist Name"/>
+                                </div>
+                                <div class="form-label">
+                                    <input type="submit" class="btn btn-primary" value="Add Track" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

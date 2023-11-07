@@ -1,0 +1,81 @@
+{% from "_dropdown_nav.html" import dropdown_nav %}
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Spotify API Project</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                {% if not current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('auth.login')}}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('auth.register')}}">Register</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('auth.landing_page')}}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('auth.profile')}}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('search.searchSpotify')}}">Add Favourites</a>
+                </li>
+                <!-- favourites nav -->
+                {% set favourites = [
+                ("favourites.artists", "Artists"),
+                ("favourites.tracks", "Tracks"),
+                ] %}
+                {{dropdown_nav("Favourites", favourites)}}
+                <!-- roles nav (requires admin )-->
+                {% if current_user.has_role("Admin") %}
+                {% set roles = [
+                ("roles.add", "Add"),
+                ("roles.list", "List"),
+                ("roles.assign", "Assign")
+                ] %}
+                {% set associations = [
+                    ("adminassoc.addassoc", "Add"),
+                    ("adminassoc.listassoc", "List"),
+                    ("adminassoc.createassoc", "Create")] %}
+                {{dropdown_nav("Roles", roles)}}
+                {% else %}
+                {% set permissions = [
+                    ("userassoc.addassociation", "Add"),
+                    ("userassoc.listassociation", "List")] %}
+                    {{dropdown_nav("Permissions",permissions)}}
+                {% endif %}
+                {% if current_user.has_role("Admin") %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('userassoc.associationreport')}}">Permissions Report</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('favourites.deleteuserfavourites')}}">User Favourites</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('feature.requestedfeatures')}}">Requested Features</a>
+                </li>
+                {% else %}
+                {% set favsummary = [
+                    ("favourites.listartistsfavourites", "Artists"),
+                    ("favourites.listtracksfavourites", "Tracks"),
+                ] %}
+                {{dropdown_nav("Favourites Summary", favsummary)}}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('feature.userrequest')}}">Request Feature</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('auth.logout')}}">Logout</a>
+                </li>
+                {% endif %}
+
+            </ul>
+        </div>
+    </div>
+</nav>

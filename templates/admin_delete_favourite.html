@@ -1,0 +1,84 @@
+{% extends "landing_page.html" %}
+{% block title %}List All Favourites{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div style="width:50%; float:left;">
+        <div class="h2 text-center">Favourite Artists of all users</div>
+        <div  style="height:67vh; overflow: auto;">
+        <table class="table" style="height:67vh; overflow: auto;">
+            {% if artistrows and artistrows|length > 0 %}
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in artistrows[0] %}
+                    {% if r != 'id' %}
+                    <th>{{r.replace("_", " ")}}</th>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in artistrows %}
+                <tr>
+                    {% for v in r.keys() %}
+                    {% if v != 'id' %}
+                    <td>{{r[v]}}</td>
+                    {% endif %}
+                    {% endfor %}
+                    <td><form method="POST" action="{{url_for('favourites.deleteuserfavourites', artistuserid=r.get('userid'), artistid=r.get('id'))}}">
+                        <input type="submit" class="btn btn-danger btn-sm" name="delartist" value="Delete"/>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+    </div>
+    <div style="width:50%; float:right;">
+        <div class="h2 text-center">Favourite Tracks of all users</div>
+        <div  style="height:67vh; overflow: auto;">
+        <table class="table">
+            {% if trackrows and trackrows|length > 0 %}
+            <thead>
+                <tr class="text-capitalize">
+                    {% for r in trackrows[0] %}
+                    {% if r != 'id' %}
+                    <th>{{r.replace("_", " ")}}</th>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in trackrows %}
+                <tr>
+                    {% for v in r.keys() %}
+                    {% if v != 'id' %}
+                    <td>{{r[v]}}</td>
+                    {% endif %}
+                    {% endfor %}
+                    <td><form method="POST" action="{{url_for('favourites.deleteuserfavourites', trackuserid=r.get('userid'), trackid=r.get('id'))}}">
+                        <input type="submit" class="btn btn-danger btn-sm" name="deltrack" value="Delete"/>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% else %}
+            <tbody>
+                <tr>
+                    <td colspan="100%">No results to show</td>
+                </tr>
+            </tbody>
+            {% endif %}
+        </table>
+    </div>
+    </div>
+</div>
+{% endblock %}
